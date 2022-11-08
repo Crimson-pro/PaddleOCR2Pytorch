@@ -114,12 +114,26 @@ def sorted_boxes(dt_boxes):
     sorted_boxes = sorted(dt_boxes, key=lambda x: (x[0][1], x[0][0]))
     _boxes = list(sorted_boxes)
 
-    for i in range(num_boxes - 1):
-        if abs(_boxes[i + 1][0][1] - _boxes[i][0][1]) < 10 and \
-                (_boxes[i + 1][0][0] < _boxes[i][0][0]):
-            tmp = _boxes[i]
-            _boxes[i] = _boxes[i + 1]
-            _boxes[i + 1] = tmp
+    # 这里本意是把在同一个y区间范围内，小x0的box都排到前面去,但是只用一个For循环只能做到局部排序
+    # 同一个y区间内有多个box将导致排序错误
+    # 这里必须全排序，才能保证后续基于序列标注的关系抽取程序是完全正确且有效的
+    # for i in range(num_boxes - 1):
+    #     if abs(_boxes[i + 1][0][1] - _boxes[i][0][1]) < 10 and \
+    #             (_boxes[i + 1][0][0] < _boxes[i][0][0]):
+    #         tmp = _boxes[i]
+    #         _boxes[i] = _boxes[i + 1]
+    #         _boxes[i + 1] = tmp
+    
+    flag = True
+    while flag:
+        flag = False
+        for i in range(num_boxes - 1):
+            if abs(_boxes[i + 1][0][1] - _boxes[i][0][1]) < 10 and \
+                    (_boxes[i + 1][0][0] < _boxes[i][0][0]):
+                tmp = _boxes[i]
+                _boxes[i] = _boxes[i + 1]
+                _boxes[i + 1] = tmp   
+                flag = True
     return _boxes
 
 
